@@ -1,14 +1,26 @@
-# Maven
-target/
+# Compiled class files
 *.class
 
-# IDE
+# Maven
+target/
+*.jar
+*.war
+*.ear
+*.zip
+
+# IDE files
 .idea/
 *.iml
 .vscode/
 .settings/
-.classpath
 .project
+.classpath
 
-# MacOS
+# OS files
 .DS_Store
+Thumbs.db
+
+# Build files
+build/
+bin/
+out/

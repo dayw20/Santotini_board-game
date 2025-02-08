@@ -2,10 +2,9 @@ package edu.cmu.cs214.hw2.game;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import edu.cmu.cs214.hw2.board.Board;
 import edu.cmu.cs214.hw2.model.Worker;
-import edu.cmu.cs214.hw2.player.*;
+import edu.cmu.cs214.hw2.player.Player;
 
 public class Game {
     private Board board;

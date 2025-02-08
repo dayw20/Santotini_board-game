@@ -1,12 +1,11 @@
 package edu.cmu.cs214.hw2;
 
+import java.util.Scanner;  
 import edu.cmu.cs214.hw2.player.Player;
 import edu.cmu.cs214.hw2.model.Worker;
 import edu.cmu.cs214.hw2.game.Game;
 import edu.cmu.cs214.hw2.model.Cell;
 import edu.cmu.cs214.hw2.model.Occupancy;
-
-import java.util.Scanner;
 
 public class GameController {
     private Game game;

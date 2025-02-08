@@ -1,5 +1,6 @@
 package edu.cmu.cs214.hw2.model;
-import edu.cmu.cs214.hw2.player.*;
+
+import edu.cmu.cs214.hw2.player.Player;
 
 public class Worker {
     private Cell position;

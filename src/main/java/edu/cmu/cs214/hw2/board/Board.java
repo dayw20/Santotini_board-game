@@ -1,9 +1,11 @@
 package edu.cmu.cs214.hw2.board;
-import edu.cmu.cs214.hw2.model.*;
 
-
+import edu.cmu.cs214.hw2.model.Cell;
+import edu.cmu.cs214.hw2.model.Worker;
+import edu.cmu.cs214.hw2.model.Occupancy;
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class Board {
     private Cell[][] grid;
@@ -12,8 +14,8 @@ public class Board {
     public Board() {
         grid = new Cell[5][5];
         allWorkers = new ArrayList<>();
-        for(int i = 0; i < 5; i++) {
-            for(int j = 0; j < 5; j++) {
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 5; j++) {
                 grid[i][j] = new Cell(i, j);
             }
         }

@@ -2,8 +2,8 @@ package edu.cmu.cs214.hw2.player;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import edu.cmu.cs214.hw2.model.*;
+import edu.cmu.cs214.hw2.model.Worker;
+import edu.cmu.cs214.hw2.model.Cell;
 
 public class Player {
     private String name;
