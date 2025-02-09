@@ -23,6 +23,7 @@ The synchronized updates are encapsulated within `move()` methods to maintain co
 Tower information is stored within the Cell class through:
 
 `level: int for tower height`
+
 `occupancy: Occupancy enum (EMPTY, WORKER, DOME) for dome status`
 
 This design was chosen over creating a separate Tower class to maintain a low representational gap - cells are the fundamental unit of the game board, and their properties (height, dome status) are intrinsic to the cell itself rather than separate entities.
