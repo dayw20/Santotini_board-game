@@ -95,7 +95,14 @@ public class GameController {
     private void runGame() {
         while (!game.isGameOver()) {
             displayBoard();
-            playTurn(game.getCurrPlayer());
+            Player player = (game.getCurrPlayer());
+            System.out.println("\n" + "Now is" + " "  + player.getName() + "'s turn:");
+            Worker worker = selectWorker(player);
+            moveWorker(player, worker);
+            if (game.isGameOver()) {
+                break;
+            }
+            buildTower(player, worker);
             if (!game.isGameOver()) {
                 game.nextTurn();
             }
@@ -149,17 +156,6 @@ public class GameController {
             }
         }
         return null;
-    }
-
-    /**
-     * Runs a single player's turn.
-     * @param player The player whose turn it is
-     */
-    private void playTurn(Player player) {
-        System.out.println("Now is" + "\n" + player.getName() + "'s turn:");
-        Worker worker = selectWorker(player);
-        moveWorker(player, worker);
-        buildTower(player, worker);
     }
 
     /**
