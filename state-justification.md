@@ -32,7 +32,7 @@ This design was chosen over creating a separate Tower class to maintain a low re
 The Game class is responsible for tracking and determining the winner through its `checkWin()` and `isGameOver()` methods. This follows the Controller heuristic as Game has the global view necessary to evaluate victory conditions and manage game termination.
 
 ## Design goals/principles/heuristics considered
-**Low Representational Gap**
+### **Low Representational Gap**
 
 Cell structure closely mirrors the physical game board
 
@@ -40,7 +40,7 @@ Worker and Player relationships reflect actual game mechanics. Player control th
 
 
 
-**Low Coupling**
+### **Low Coupling**
 
 Game class coordinates interactions, preventing direct coupling between players
 
@@ -50,7 +50,7 @@ Worker operations are self-contained
 
 
 
-**High Cohesion**
+### **High Cohesion**
 
 Each class has clear, focused responsibilities:
 
@@ -64,7 +64,7 @@ Player manages worker control and strategy
 
 
 
-**Design Heuristics**
+### **Design Heuristics**
 
 Controller: Game class coordinates overall flow
 
