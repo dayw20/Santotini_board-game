@@ -35,29 +35,38 @@ The Game class is responsible for tracking and determining the winner through it
 **Low Representational Gap**
 
 Cell structure closely mirrors the physical game board
+
 Worker and Player relationships reflect actual game mechanics. Player control the move and build action of workers, while worker takes the responsibility of how mave and build are implemented.
 
 
 **Low Coupling**
 
 Game class coordinates interactions, preventing direct coupling between players
+
 Cell state management is localized
+
 Worker operations are self-contained
 
 
 **High Cohesion**
 
 Each class has clear, focused responsibilities:
+
 Game manages game flow and logic
+
 Board manages spatial relationships
+
 Worker manages movement and building actions
+
 Player manages worker control and strategy
 
 
 **Design Heuristics**
 
 Controller: Game class coordinates overall flow
+
 Information Expert: Classes manage their most relevant data
+
 Creator: Player manages its workers, Board manages cells
 
 ## Alternatives considered and analysis of trade-offs
