@@ -7,21 +7,37 @@ import edu.cmu.cs214.hw2.game.Game;
 import edu.cmu.cs214.hw2.model.Cell;
 import edu.cmu.cs214.hw2.model.Occupancy;
 
+
+
+/**
+ * Control the Santorini game.
+ * Handle user input and game state.
+ */
 public class GameController {
     private Game game;
     private Scanner scanner;
 
+
+    /**
+     * Creates a new GameController instance.
+     */
     public GameController() {
         this.game = new Game();
         this.scanner = new Scanner(System.in);
     }
     
+    /**
+     * Starts and runs a complete Santorini game.
+     */
     public void playGame() {
         initialGame();
         runGame();
         endGame();
     }
     
+    /**
+     * Initializes the game: set up players and workers.
+     */
     private void initialGame() {
         System.out.println("Welcome to Santorini!");
         System.out.println();
@@ -42,6 +58,10 @@ public class GameController {
         setStartPlace(playerB);
     }
 
+    /**
+     * Places the workers in start position for a player.
+     * @param player The player whose workers need to be placed
+     */
     private void setStartPlace(Player player) {
         System.out.println("\n" + player.getName() + ", please place your workers:");
         for (int i = 0; i < 2; i++) {
@@ -68,6 +88,10 @@ public class GameController {
         }
         scanner.nextLine();
     }    
+
+    /**
+     * Runs the main game.
+     */
     private void runGame() {
         while (!game.isGameOver()) {
             displayBoard();
@@ -78,6 +102,9 @@ public class GameController {
         }
     }
 
+    /**
+     * Displays the current state of the game board.
+     */
     private void displayBoard() {
         System.out.println("\nCurrent board state⬇:");
         System.out.println("[D] - Dome");
@@ -108,6 +135,11 @@ public class GameController {
         }
     }
 
+    /**
+     * Finds the worker at a given cell position.
+     * @param cell The cell to check
+     * @return The worker at the position, or null if no worker found
+     */
     private Worker findWorkerAtPosition(Cell cell) {
         for (Player player : game.getPlayers()) {
             for (Worker worker : player.getWorkers()) {
@@ -119,12 +151,22 @@ public class GameController {
         return null;
     }
 
+    /**
+     * Runs a single player's turn.
+     * @param player The player whose turn it is
+     */
     private void playTurn(Player player) {
         System.out.println("Now is" + "\n" + player.getName() + "'s turn:");
         Worker worker = selectWorker(player);
         moveWorker(player, worker);
         buildTower(player, worker);
     }
+
+    /**
+     * Makes the player to select a worker.
+     * @param player The current player
+     * @return The selected worker
+     */
     private Worker selectWorker(Player player) {
         displayBoard();
         while (true) {
@@ -142,6 +184,11 @@ public class GameController {
         }
     }
 
+    /**
+     * Makes a move action in a turn.
+     * @param player The current player
+     * @param worker The selected worker to move
+     */
     private void moveWorker(Player player, Worker worker) {
         boolean moved = false;
         displayBoard();
@@ -165,6 +212,11 @@ public class GameController {
         }
     } 
 
+    /**
+     * Makes the build action in a turn.
+     * @param player The current player
+     * @param worker The selected worker
+     */
     private void buildTower(Player player, Worker worker) {
         boolean built = false;
         displayBoard();
@@ -188,6 +240,10 @@ public class GameController {
         }
     }
 
+
+    /**
+     * Handles the end of the game.
+     */
     private void endGame() {
         Player winner = game.getWinner();
         if (winner != null) {
