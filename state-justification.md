@@ -39,6 +39,7 @@ Cell structure closely mirrors the physical game board
 Worker and Player relationships reflect actual game mechanics. Player control the move and build action of workers, while worker takes the responsibility of how mave and build are implemented.
 
 
+
 **Low Coupling**
 
 Game class coordinates interactions, preventing direct coupling between players
@@ -46,6 +47,7 @@ Game class coordinates interactions, preventing direct coupling between players
 Cell state management is localized
 
 Worker operations are self-contained
+
 
 
 **High Cohesion**
@@ -59,6 +61,7 @@ Board manages spatial relationships
 Worker manages movement and building actions
 
 Player manages worker control and strategy
+
 
 
 **Design Heuristics**
