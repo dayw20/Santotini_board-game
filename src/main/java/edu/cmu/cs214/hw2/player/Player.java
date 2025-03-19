@@ -28,27 +28,13 @@ public class Player {
     }
 
     /**
-     * Moves a worker to a target cell.
+     * Checks if this player owns the specified worker.
      * 
-     * @param worker The worker to move
-     * @param targetCell The cell to move to
+     * @param worker The worker to check
+     * @return true if the player owns the worker, false otherwise
      */
-    public void moveWorker(Worker worker, Cell targetCell) {
-        if (workers.contains(worker)) {
-            worker.move(targetCell);
-        }
-    }
-
-    /**
-     * Makes a worker to build on a target cell.
-     * 
-     * @param worker The worker that will build
-     * @param targetCell The cell to build on
-     */
-    public void buildWithWorker(Worker worker, Cell targetCell) {
-        if (workers.contains(worker)) {
-            worker.build(targetCell);
-        }
+    public boolean ownsWorker(Worker worker) {
+        return workers.contains(worker);
     }
 
     /**
