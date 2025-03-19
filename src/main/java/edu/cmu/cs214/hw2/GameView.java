@@ -25,6 +25,18 @@ public class GameView {
     }
 
     /**
+     * Reads an integer input safely.
+     * @return The valid integer input
+     */
+    private int getValidInteger() {
+        while (!scanner.hasNextInt()) {
+            System.out.println("Invalid input. Please enter an integer.");
+            scanner.next(); 
+        }
+        return scanner.nextInt();
+    }
+
+    /**
      * Reads a player's name from input.
      * @param prompt Message to display before input
      * @return The player's name
@@ -43,14 +55,13 @@ public class GameView {
     public int[] getWorkerPlacement(String playerName, int workerNum) {
         while (true) {
             System.out.printf("\n%s, enter position for worker %d (x y), e.g., '1 2': ", playerName, workerNum);
-            try {
-                int x = scanner.nextInt();
-                int y = scanner.nextInt();
+            int x = getValidInteger();
+            int y = getValidInteger();
+            
+            if (x >= 0 && x < 5 && y >= 0 && y < 5) {
                 return new int[]{x, y};
-            } catch (Exception e) {
-                System.out.println("Invalid input. Please enter two integers.");
-                scanner.nextLine(); // Clear invalid input
             }
+            System.out.println("Invalid coordinates. Must be between 0 and 4.");
         }
     }
 
@@ -60,16 +71,13 @@ public class GameView {
      */
     public int getWorkerSelection() {
         while (true) {
-            System.out.print("Select the worker you want to move in this turn (1 or 2): ");
-            try {
-                int workerNum = scanner.nextInt();
+            while (true) {
+                System.out.print("Select the worker you want to move (1 or 2): ");
+                int workerNum = getValidInteger();
                 if (workerNum == 1 || workerNum == 2) {
                     return workerNum;
                 }
                 System.out.println("Please enter 1 or 2.");
-            } catch (Exception e) {
-                System.out.println("Invalid input. Please enter a number (1 or 2).");
-                scanner.nextLine(); // Clear invalid input
             }
         }
     }
@@ -82,14 +90,13 @@ public class GameView {
     public int[] getPosition(String actionType) {
         while (true) {
             System.out.printf("Enter the position (x y) where you want to %s: ", actionType);
-            try {
-                int x = scanner.nextInt();
-                int y = scanner.nextInt();
+            int x = getValidInteger();
+            int y = getValidInteger();
+            
+            if (x >= 0 && x < 5 && y >= 0 && y < 5) {
                 return new int[]{x, y};
-            } catch (Exception e) {
-                System.out.println("Invalid input. Please enter two integers.");
-                scanner.nextLine(); // Clear invalid input
             }
+            System.out.println("Invalid coordinates. Must be between 0 and 4.");
         }
     }
 
