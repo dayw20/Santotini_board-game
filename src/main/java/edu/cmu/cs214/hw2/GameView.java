@@ -156,7 +156,7 @@ public class GameView {
                 int workerNum = worker.getOwner().getWorkers().indexOf(worker) + 1;
                 System.out.printf("[%c%d]", playerChar, workerNum);
             } else {
-                System.out.print("[??]"); // Should never happen
+                System.out.print("[??]"); 
             }
         } else if (cell.getOccupancy() == Occupancy.DOME) {
             System.out.print("[D ]");

@@ -82,6 +82,7 @@ public class GameController {
                 break;
             }
 
+            view.displayBoard();
             executeBuild(currentPlayer, selectedWorker);
             if (!game.isGameOver()) {
                 game.nextTurn();

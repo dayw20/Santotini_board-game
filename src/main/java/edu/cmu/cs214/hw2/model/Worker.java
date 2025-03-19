@@ -45,6 +45,10 @@ public class Worker {
      * @param targetCell The cell to move to
      */
     public void moveTo(Cell targetCell) {
+        if (targetCell.isOccupied()) {
+            throw new IllegalArgumentException("Cannot move to an occupied cell.");
+        }
+        
         if (position != null) {
             position.setOccupancy(Occupancy.EMPTY);
         }
