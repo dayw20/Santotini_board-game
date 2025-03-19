@@ -5,8 +5,6 @@ import edu.cmu.cs214.hw2.player.Player;
 import edu.cmu.cs214.hw2.model.Worker;
 import edu.cmu.cs214.hw2.game.Game;
 import edu.cmu.cs214.hw2.model.Cell;
-import edu.cmu.cs214.hw2.model.Occupancy;
-
 
 
 /**
@@ -15,6 +13,7 @@ import edu.cmu.cs214.hw2.model.Occupancy;
  */
 public class GameController {
     private Game game;
+    private GameView view;
     private Scanner scanner;
 
 
@@ -24,29 +23,23 @@ public class GameController {
     public GameController() {
         this.game = new Game();
         this.scanner = new Scanner(System.in);
+        this.view = new GameView(game);
     }
     
     /**
      * Starts and runs a complete Santorini game.
      */
     public void playGame() {
-        initialGame();
-        runGame();
+        initializeGame();
+        runGameLoop();
         endGame();
     }
     
     /**
      * Initializes the game: set up players and workers.
      */
-    private void initialGame() {
-        System.out.println("Welcome to Santorini!");
-        System.out.println();
-        System.out.println("Build your way to victory in this strategic game of towers and workers.");
-        System.out.println("Place your workers, move wisely, and construct towers to reach the top.");
-        System.out.println("Be the first to climb to level 3 and claim your victory!");
-        System.out.println();
-        System.out.println("Will you outsmart your opponent and become the master builder?");
-        System.out.println("Let the game begin!");
+    private void initializeGame() {
+        view.displayWelcomeMessage();
 
         System.out.print("Enter name for Player A: ");
         Player playerA = new Player(scanner.nextLine());
@@ -54,20 +47,21 @@ public class GameController {
         Player playerB = new Player(scanner.nextLine());
 
         game.startGame(playerA, playerB);
-        setStartPlace(playerA);
-        setStartPlace(playerB);
+        placeWorkersForPlayer(playerA);
+        placeWorkersForPlayer(playerB);
     }
 
     /**
      * Places the workers in start position for a player.
+     * 
      * @param player The player whose workers need to be placed
      */
-    private void setStartPlace(Player player) {
+    private void placeWorkersForPlayer(Player player) {
         System.out.println("\n" + player.getName() + ", please place your workers:");
         for (int i = 0; i < 2; i++) {
             Worker worker = player.getWorkers().get(i);
             boolean placed = false;
-            displayBoard();
+            view.displayBoard();
             while (!placed) {
                 System.out.printf("Enter position for worker %d (x y), e.g., '1 2': ", i + 1);
                 try {
@@ -75,98 +69,55 @@ public class GameController {
                     int y = scanner.nextInt();
                     
                     Cell cell = game.getBoard().getCell(x, y);
-                    if (game.getBoard().placeWorker(worker, cell)) {
+                    if (game.placeWorker(player, worker, cell)) {
                         placed = true;
                     } else {
-                        System.out.println("Position occupied. Try again.");
+                        view.displayOccupiedPositionMessage();
                     }
                 } catch (IllegalArgumentException e) {
-                    System.out.println("Invalid coordinates. Must be between 0 and 4.");
+                    view.displayInvalidCoordinatesMessage();
                     scanner.nextLine(); 
                 }
             }
         }
-        scanner.nextLine();
+        scanner.nextLine(); 
     }    
 
     /**
-     * Runs the main game.
+     * Runs the main game loop.
      */
-    private void runGame() {
+    private void runGameLoop() {
         while (!game.isGameOver()) {
-            displayBoard();
-            Player player = (game.getCurrPlayer());
-            System.out.println("\n" + "Now is" + " "  + player.getName() + "'s turn:");
-            Worker worker = selectWorker(player);
-            moveWorker(player, worker);
+            view.displayBoard();
+            Player currentPlayer = game.getCurrPlayer();
+            view.displayCurrentTurn(currentPlayer);
+            
+            Worker selectedWorker = selectWorkerForPlayer(currentPlayer);
+            executeMove(currentPlayer, selectedWorker);
+            
             if (game.isGameOver()) {
                 break;
             }
-            buildTower(player, worker);
+            
+            executeBuild(currentPlayer, selectedWorker);
+            
             if (!game.isGameOver()) {
                 game.nextTurn();
             }
         }
     }
 
+    
     /**
-     * Displays the current state of the game board.
-     */
-    private void displayBoard() {
-        System.out.println("\nCurrent board state⬇:");
-        System.out.println("[D] - Dome");
-        System.out.println("[An] - Player A's worker n (n=1,2)");
-        System.out.println("[Bn] - Player B's worker n (n=1,2)");
-        System.out.println("[n] - Building level n (0-3)");
-        System.out.println();
-        
-        System.out.println("    0   1   2   3   4  ");
-        for (int y = 0; y < 5; y++) {
-            System.out.print(y + " ");
-            for (int x = 0; x < 5; x++) {
-                Cell cell = game.getBoard().getCell(x, y);
-                if (cell.getOccupancy() == Occupancy.WORKER) {
-                    Worker w = findWorkerAtPosition(cell);
-                    if (w != null) {
-                        char playerChar = (w.getOwner() == game.getPlayers().get(0)) ? 'A' : 'B';
-                        int workerNum = w.getOwner().getWorkers().indexOf(w) + 1;
-                        System.out.printf("[%c%d]", playerChar, workerNum);
-                    }
-                } else if (cell.getOccupancy() == Occupancy.DOME) {
-                    System.out.print("[D ]");
-                } else {
-                    System.out.printf("[%d ]", cell.getLevel());
-                }
-            }
-            System.out.println();
-        }
-    }
-
-    /**
-     * Finds the worker at a given cell position.
-     * @param cell The cell to check
-     * @return The worker at the position, or null if no worker found
-     */
-    private Worker findWorkerAtPosition(Cell cell) {
-        for (Player player : game.getPlayers()) {
-            for (Worker worker : player.getWorkers()) {
-                if (worker.getPosition() == cell) {
-                    return worker;
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Makes the player to select a worker.
+     * Makes the player select a worker.
+     * 
      * @param player The current player
      * @return The selected worker
      */
-    private Worker selectWorker(Player player) {
-        displayBoard();
+    private Worker selectWorkerForPlayer(Player player) {
+        view.displayBoard();
         while (true) {
-            System.out.print("Select the worker you want to move in this turn (1 or 2): ");
+            view.displayWorkerSelectionPrompt();
             try {
                 int workerNum = scanner.nextInt();
                 if (workerNum == 1 || workerNum == 2) {
@@ -174,76 +125,82 @@ public class GameController {
                 }
                 System.out.println("Please enter 1 or 2.");
             } catch (Exception e) {
-                System.out.println("Invalid input. Please enter 1 or 2.");
+                view.displayInvalidInputMessage();
                 scanner.nextLine(); 
             }
         }
     }
 
     /**
-     * Makes a move action in a turn.
-     * @param player The current player
-     * @param worker The selected worker to move
-     */
-    private void moveWorker(Player player, Worker worker) {
-        boolean moved = false;
-        displayBoard();
-        while (! moved) {
-            System.out.print("Enter the position(x y) you want to move to, the worker can only move to an adjacent unoccupied field: e.g., '1 2'");
-            try {
-                int x = scanner.nextInt();
-                int y = scanner.nextInt();
-                
-                Cell targetCell = game.getBoard().getCell(x, y);
-                if (worker.canMove(targetCell)) {
-                    player.moveWorker(worker, targetCell);
-                    moved = true;
-                } else {
-                    System.out.println("Invalid move. Worker can only move to adjacent cells and climb up max 1 level.");
-                }
-            } catch (Exception e) {
-                System.out.println("Invalid input. Coordinates must be between 0 and 4.");
-                scanner.nextLine(); 
-            }
-        }
-    } 
-
-    /**
-     * Makes the build action in a turn.
+     * Executes a move action for a player and worker.
+     * 
      * @param player The current player
      * @param worker The selected worker
      */
-    private void buildTower(Player player, Worker worker) {
-        boolean built = false;
-        displayBoard();
-        while (!built) {
-            System.out.print("Enter the position(x y) you want to build, worker can only to build on adjacent unoccupied field or tower without dome: e.g., '1 2': ");
+    private void executeMove(Player player, Worker worker) {
+        boolean moved = false;
+        view.displayBoard();
+        while (!moved) {
+            view.displayMovePrompt();
             try {
                 int x = scanner.nextInt();
                 int y = scanner.nextInt();
                 
                 Cell targetCell = game.getBoard().getCell(x, y);
-                if (worker.canBuild(targetCell)) {
-                    player.buildWithWorker(worker, targetCell);
-                    built = true;
+                if (game.executeMove(player, worker, targetCell)) {
+                    moved = true;
                 } else {
-                    System.out.println("Invalid build position. Must be adjacent and unoccupied.");
+                    view.displayInvalidMoveMessage();
                 }
             } catch (IllegalArgumentException e) {
-                System.out.println("Invalid coordinates. Must be between 0 and 4.");
+                view.displayInvalidCoordinatesMessage();
+                scanner.nextLine(); 
+            } catch (Exception e) {
+                view.displayInvalidInputMessage();
                 scanner.nextLine(); 
             }
         }
     }
 
+    /**
+     * Executes a build action for a player and worker.
+     * 
+     * @param player The current player
+     * @param worker The selected worker
+     */
+    private void executeBuild(Player player, Worker worker) {
+        boolean built = false;
+        view.displayBoard();
+        while (!built) {
+            view.displayBuildPrompt();
+            try {
+                int x = scanner.nextInt();
+                int y = scanner.nextInt();
+                
+                Cell targetCell = game.getBoard().getCell(x, y);
+                if (game.executeBuild(player, worker, targetCell)) {
+                    built = true;
+                } else {
+                    view.displayInvalidBuildMessage();
+                }
+            } catch (IllegalArgumentException e) {
+                view.displayInvalidCoordinatesMessage();
+                scanner.nextLine(); 
+            } catch (Exception e) {
+                view.displayInvalidInputMessage();
+                scanner.nextLine(); 
+            }
+        }
+    }
 
     /**
      * Handles the end of the game.
      */
     private void endGame() {
+        view.displayBoard();
         Player winner = game.getWinner();
         if (winner != null) {
-            System.out.println("\nCongratulations " + winner.getName() + "! You've won!");
+            view.displayWinner(winner);
         }
     }
 }
