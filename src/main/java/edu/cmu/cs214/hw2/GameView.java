@@ -1,5 +1,6 @@
 package edu.cmu.cs214.hw2;
 
+import java.util.Scanner;  
 import edu.cmu.cs214.hw2.game.Game;
 import edu.cmu.cs214.hw2.model.Cell;
 import edu.cmu.cs214.hw2.model.Occupancy;
@@ -7,10 +8,11 @@ import edu.cmu.cs214.hw2.model.Worker;
 import edu.cmu.cs214.hw2.player.Player;
 
 /**
- * Handles the display of game elements and messages.
+ * Handles the display and input for the Santorini game.
  */
 public class GameView {
     private Game game;
+    private Scanner scanner;
 
     /**
      * Creates a new {@link GameView} instance.
@@ -19,6 +21,83 @@ public class GameView {
      */
     public GameView(Game game) {
         this.game = game;
+        this.scanner = new Scanner(System.in);
+    }
+
+    /**
+     * Reads a player's name from input.
+     * @param prompt Message to display before input
+     * @return The player's name
+     */
+    public String getPlayerName(String prompt) {
+        System.out.print(prompt);
+        return scanner.nextLine().trim();
+    }
+
+    /**
+     * Reads worker placement coordinates.
+     * @param playerName The name of the player placing the worker
+     * @param workerNum The worker number (1 or 2)
+     * @return An integer array {x, y} representing coordinates
+     */
+    public int[] getWorkerPlacement(String playerName, int workerNum) {
+        while (true) {
+            System.out.printf("\n%s, enter position for worker %d (x y), e.g., '1 2': ", playerName, workerNum);
+            try {
+                int x = scanner.nextInt();
+                int y = scanner.nextInt();
+                return new int[]{x, y};
+            } catch (Exception e) {
+                System.out.println("Invalid input. Please enter two integers.");
+                scanner.nextLine(); // Clear invalid input
+            }
+        }
+    }
+
+    /**
+     * Reads a worker selection (1 or 2).
+     * @return The worker number (1 or 2)
+     */
+    public int getWorkerSelection() {
+        while (true) {
+            System.out.print("Select the worker you want to move in this turn (1 or 2): ");
+            try {
+                int workerNum = scanner.nextInt();
+                if (workerNum == 1 || workerNum == 2) {
+                    return workerNum;
+                }
+                System.out.println("Please enter 1 or 2.");
+            } catch (Exception e) {
+                System.out.println("Invalid input. Please enter a number (1 or 2).");
+                scanner.nextLine(); // Clear invalid input
+            }
+        }
+    }
+
+    /**
+     * Reads a move/build position.
+     * @param actionType "move" or "build"
+     * @return An integer array {x, y} representing coordinates
+     */
+    public int[] getPosition(String actionType) {
+        while (true) {
+            System.out.printf("Enter the position (x y) where you want to %s: ", actionType);
+            try {
+                int x = scanner.nextInt();
+                int y = scanner.nextInt();
+                return new int[]{x, y};
+            } catch (Exception e) {
+                System.out.println("Invalid input. Please enter two integers.");
+                scanner.nextLine(); // Clear invalid input
+            }
+        }
+    }
+
+    /**
+     * Closes the scanner when the game ends.
+     */
+    public void closeScanner() {
+        scanner.close();
     }
 
     /**
