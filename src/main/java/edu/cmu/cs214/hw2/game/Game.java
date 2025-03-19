@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import edu.cmu.cs214.hw2.board.Board;
 import edu.cmu.cs214.hw2.model.Cell;
+import edu.cmu.cs214.hw2.model.Occupancy;
 import edu.cmu.cs214.hw2.model.Worker;
 import edu.cmu.cs214.hw2.player.Player;
 
@@ -78,6 +79,9 @@ public class Game {
         if (!worker.canClimb(targetCell.getLevel())) {
             return false;
         }
+        if (targetCell.getOccupancy() == Occupancy.DOME) {
+            return false;
+        }
         
         return true;
     }
@@ -106,6 +110,8 @@ public class Game {
         
         // Execute the move
         worker.moveTo(targetCell);
+
+        board.getAllWorkers().add(worker);
         
         // Check win condition after move
         checkWinCondition();
@@ -135,6 +141,10 @@ public class Game {
         
         // Target cell must be adjacent to worker
         if (!board.isAdjacent(workerPosition, targetCell)) {
+            return false;
+        }
+
+        if (targetCell.getOccupancy() == Occupancy.DOME) {
             return false;
         }
         
