@@ -28,7 +28,9 @@ public class Worker {
      * @return true if the climb is physically possible
      */
     public boolean canClimb(int targetLevel) {
-        if (position == null) return false;
+        if (position == null) {
+            return false;
+        }
         
         int currentLevel = position.getLevel();
         int levelDiff = targetLevel - currentLevel;

@@ -38,7 +38,9 @@ public class Cell {
     public void increaseLevel() {
         if (level == 3) {
             occupancy = Occupancy.DOME;
-        } else { level ++; }
+        } else { 
+            level ++; 
+        }
     }
     
     public int getLevel() {
