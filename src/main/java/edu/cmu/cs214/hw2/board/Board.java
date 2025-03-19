@@ -55,6 +55,25 @@ public class Board {
     }
 
     /**
+     * Checks if two cells are adjacent to each other.
+     *
+     * @param cell1 The first cell
+     * @param cell2 The second cell
+     * @return true if the cells are adjacent, false otherwise
+     */
+    public boolean isAdjacent(Cell cell1, Cell cell2) {
+        if (cell1 == null || cell2 == null) {
+            return false;
+        }
+        
+        int dx = Math.abs(cell1.getX() - cell2.getX());
+        int dy = Math.abs(cell1.getY() - cell2.getY());
+        
+        return dx <= 1 && dy <= 1 && !(dx == 0 && dy == 0);
+    }
+
+
+    /**
      * Gets all workers currently on the board.
      *
      * @return List of all workers
