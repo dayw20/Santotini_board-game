@@ -20,10 +20,8 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStartGame }) => {
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center fixed inset-0 m-0 p-0">
-      {/* This removes the background from the page itself, making it fully white */}
       <div className="fixed inset-0 bg-white"></div>
       
-      {/* Center card with gradient background */}
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}

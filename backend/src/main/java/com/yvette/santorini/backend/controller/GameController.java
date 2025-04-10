@@ -8,7 +8,7 @@ import com.yvette.santorini.backend.dto.*;
 
 @RestController
 @RequestMapping("/api/game")
-@CrossOrigin(origins = "*") // Allow requests from any origin
+@CrossOrigin(origins = "*") 
 public class GameController {
 
     @Autowired

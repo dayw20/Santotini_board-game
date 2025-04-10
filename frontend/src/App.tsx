@@ -90,7 +90,6 @@ const App: React.FC = () => {
       
       switch (gameState.phase) {
         case 'placingWorker':
-          // Count how many workers this player has already placed
           const placedWorkersCount = gameState.board.filter(
             cell => cell.occupancy === 'WORKER' && cell.player === gameState.currentPlayer
           ).length;

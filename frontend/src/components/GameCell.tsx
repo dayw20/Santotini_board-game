@@ -60,7 +60,6 @@ const GameCell: React.FC<GameCellProps> = ({
     }
   };
 
-  // Helper to get a compact level indicator
   const getLevelIndicator = (level: number) => {
     switch (level) {
       case 1: return 'L₁';
