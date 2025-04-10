@@ -1,8 +1,6 @@
-package edu.cmu.cs214.hw2.player;
-
+package com.yvette.santorini.backend.model;
 import java.util.ArrayList;
 import java.util.List;
-import edu.cmu.cs214.hw2.model.Worker;
 
 /**
  * A player in the Santorini.

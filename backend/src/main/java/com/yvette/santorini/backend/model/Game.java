@@ -1,12 +1,8 @@
-package edu.cmu.cs214.hw2.game;
+package com.yvette.santorini.backend.model;
 
 import java.util.ArrayList;
 import java.util.List;
-import edu.cmu.cs214.hw2.board.Board;
-import edu.cmu.cs214.hw2.model.Cell;
-import edu.cmu.cs214.hw2.model.Occupancy;
-import edu.cmu.cs214.hw2.model.Worker;
-import edu.cmu.cs214.hw2.player.Player;
+
 
 public class Game {
     private Board board;
@@ -14,6 +10,7 @@ public class Game {
     private Player currPlayer;
     private boolean gameOver;
     private Player winner;
+    private String phase = "placingWorker";
 
     public Game() {
         this.board = new Board();
@@ -185,7 +182,7 @@ public class Game {
      * Checks if a player has won the game after a move.
      * A player wins when their worker reaches level 3.
      */
-    private void checkWinCondition() {
+    public void checkWinCondition() {
         for (Worker worker : board.getAllWorkers()) {
             Cell position = worker.getPosition();
             if (position != null && position.getLevel() == 3) {
@@ -246,6 +243,14 @@ public class Game {
      */
     public List<Player> getPlayers() {
         return new ArrayList<>(players);
+    }
+
+    public String getPhase() {
+        return phase;
+    }
+    
+    public void setPhase(String phase) {
+        this.phase = phase;
     }
 
 }

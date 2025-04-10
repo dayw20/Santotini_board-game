@@ -1,4 +1,4 @@
-package edu.cmu.cs214.hw2.model;
+package com.yvette.santorini.backend.model;
 
 /**
  * A cell on the Santorini game board.

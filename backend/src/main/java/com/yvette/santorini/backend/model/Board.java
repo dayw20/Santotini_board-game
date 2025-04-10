@@ -1,8 +1,5 @@
-package edu.cmu.cs214.hw2.board;
+package com.yvette.santorini.backend.model;
 
-import edu.cmu.cs214.hw2.model.Cell;
-import edu.cmu.cs214.hw2.model.Worker;
-import edu.cmu.cs214.hw2.model.Occupancy;
 import java.util.ArrayList;
 import java.util.List;
 

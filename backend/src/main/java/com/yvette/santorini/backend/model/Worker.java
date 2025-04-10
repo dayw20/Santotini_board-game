@@ -1,6 +1,5 @@
-package edu.cmu.cs214.hw2.model;
+package com.yvette.santorini.backend.model;
 
-import edu.cmu.cs214.hw2.player.Player;
 
 /**
  * Represents a worker in the Santorini.

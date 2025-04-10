@@ -1,4 +1,4 @@
-package edu.cmu.cs214.hw2.model;
+package com.yvette.santorini.backend.model;
 /**
  * Represents the occupancy status of a cell on the game board.
  */
