@@ -19,7 +19,12 @@ public class GameController {
      */
     @PostMapping("/start")
     public ResponseEntity<Void> startGame(@RequestBody StartGameRequest request) {
-        gameService.startGame(request.getPlayerAName(), request.getPlayerBName());
+        gameService.startGame(
+        request.getPlayerAName(),
+        request.getPlayerBName(),
+        request.getPlayerAGod(),
+        request.getPlayerBGod()
+    );
         return ResponseEntity.ok().build();
     }
 
@@ -72,16 +77,13 @@ public class GameController {
     @PostMapping("/move")
     public ResponseEntity<?> moveWorker(@RequestBody MoveRequest request) {
         try {
-            boolean success = gameService.moveWorker(request);
-            if (success) {
-                return ResponseEntity.ok().build();
-            } else {
-                return ResponseEntity.badRequest().body("Invalid move");
-            }
+            gameService.moveWorker(request); // will throw if invalid
+            return ResponseEntity.ok().build();
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage()); // shows "Invalid move: [reason]"
         }
     }
+
 
     /**
      * Build with a worker on the board
@@ -99,5 +101,12 @@ public class GameController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    @PostMapping("/pass")
+    public ResponseEntity<?> passBuildPhase() {
+        gameService.passSecondBuild();
+        return ResponseEntity.ok().build();
+    }
+
 
 }

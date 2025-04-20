@@ -2,6 +2,8 @@ package com.yvette.santorini.backend.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.yvette.santorini.backend.godpowers.God;
+
 /**
  * A player in the Santorini.
  * Each player has a name and controls two workers.
@@ -10,6 +12,11 @@ import java.util.List;
 public class Player {
     private String name;
     private List<Worker> workers;
+    private God god;
+
+    public God getGod() { return god; }
+    
+    public void setGod(God god) { this.god = god; }
 
     /**
      * Creates a new {@link Player} instance with the input name.

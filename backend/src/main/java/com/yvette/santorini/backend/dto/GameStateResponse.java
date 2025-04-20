@@ -1,6 +1,7 @@
 package com.yvette.santorini.backend.dto;
 
 import java.util.List;
+import java.util.Map;
 
 public class GameStateResponse {
     private String currentPlayer;
@@ -9,6 +10,7 @@ public class GameStateResponse {
     private boolean gameOver;
     private List<CellState> board;
     private List<String> players;
+    private Map<String, String> playerGods;
 
     public List<String> getPlayers() {
         return players;
@@ -33,5 +35,13 @@ public class GameStateResponse {
 
     public String getPhase() { return phase; }
     public void setPhase(String phase) { this.phase = phase; }
+
+    public Map<String, String> getPlayerGods() {
+        return playerGods;
+    }
+
+    public void setPlayerGods(Map<String, String> playerGods) {
+        this.playerGods = playerGods;
+    }
 }
 

@@ -5,11 +5,14 @@ import GameBoard from './components/GameBoard';
 import GameControls from './components/GameControls';
 import GameStatus from './components/GameStatus';
 import StartScreen from './components/StartScreen';
-import { GameState, WorkerSelection } from './types/gameTypes';
+import GodSelectionScreen from './components/GodSelectionScreen';
 import { fetchGameState, startGame, placeWorker, moveWorker, buildTower, selectWorker } from './api/gameApi';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 import GameOverModal from './components/GameOverModal';
+import { GameState, WorkerSelection, CellState } from './types/gameTypes';
+
+
 
 
 const getFriendlyErrorMessage = (serverMessage: string): string => {
@@ -23,6 +26,23 @@ const getFriendlyErrorMessage = (serverMessage: string): string => {
     "Invalid worker index": "Invalid worker index. Please restart the game.",
     "Cannot select worker at this phase": "You cannot select a worker right now.",
   };
+  if (serverMessage.startsWith("Invalid move: target is not adjacent")) {
+    return "You can only move to an adjacent cell.";
+  }
+  if (serverMessage.startsWith("Invalid move: target is occupied or domed")) {
+    return "That space is blocked!";
+  }
+  if (serverMessage.startsWith("Invalid move: height too high")) {
+    return "You can't climb more than 1 level!";
+  }
+
+  if (serverMessage.includes("Invalid move: push off board")) {
+    return "You can't push the opponent — they’d fall off the board!";
+  }
+  if (serverMessage.includes("Invalid move: cannot push into occupied cell")) {
+    return "You can't push the opponent — the space behind them is blocked.";
+  }
+  
 
   return errorMap[serverMessage] || serverMessage;
 };
@@ -34,19 +54,37 @@ const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [isGameStarted, setIsGameStarted] = useState<boolean>(false);
   const [showRules, setShowRules] = useState<boolean>(false);
+  const [pendingPlayers, setPendingPlayers] = useState<{ playerA: string; playerB: string } | null>(null);
 
+  const isValidBuildLocation = (cell: CellState): boolean => {
+    if (!selectedWorker || !gameState) return false;
 
+    if (cell.occupancy !== 'EMPTY') return false;
+  
+    const workerCell = gameState.board.find(c =>
+      c.occupancy === 'WORKER' &&
+      c.player === selectedWorker.player &&
+      c.workerIndex === selectedWorker.index
+    );
+    if (!workerCell) return false;
+  
+    const dx = Math.abs(cell.x - workerCell.x);
+    const dy = Math.abs(cell.y - workerCell.y);
+    const isAdjacent = dx <= 1 && dy <= 1 && !(dx === 0 && dy === 0);
+  
+    return isAdjacent;
+  };
+  
   // Fetch current game state
   const refreshGameState = async () => {
     try {
       const state = await fetchGameState();
       setGameState(state);
-      
-      // Reset selected worker when turn changes
+
       if (selectedWorker && state.currentPlayer !== undefined && state.currentPlayer !== selectedWorker.player) {
         setSelectedWorker(null);
-      }      
-      
+      }
+
       setErrorMessage('');
     } catch (error) {
       if (error instanceof Error) {
@@ -66,9 +104,9 @@ const App: React.FC = () => {
   }, [isGameStarted]);
 
   // Initialize game with player names
-  const handleStartGame = async (playerA: string, playerB: string) => {
+  const handleStartGame = async (playerA: string, playerB: string, godA: string, godB: string) => {
     try {
-      await startGame(playerA, playerB);
+      await startGame(playerA, playerB, godA, godB);
       setIsGameStarted(true);
       refreshGameState();
       setErrorMessage('');
@@ -93,7 +131,6 @@ const App: React.FC = () => {
           const placedWorkersCount = gameState.board.filter(
             cell => cell.occupancy === 'WORKER' && cell.player === gameState.currentPlayer
           ).length;
-          
           await placeWorker(gameState.currentPlayer, placedWorkersCount, x, y);
           break;
           
@@ -137,19 +174,45 @@ const App: React.FC = () => {
           if (selectedWorker) {
             console.log("Building with worker:", selectedWorker.player, selectedWorker.index, "at", x, y);
             await buildTower(selectedWorker.player, selectedWorker.index, x, y);
-            setSelectedWorker(null);
+            // setSelectedWorker(null);
           } else {
             toast.error('Please select a worker first');
           }
           break;
+        
+        case 'optionalAction': {
+          const clickedCell = gameState.board.find(c => c.x === x && c.y === y);
+            
+          // Reuse isValidBuildLocation to check if user is trying to build
+          if (selectedWorker && clickedCell && isValidBuildLocation(clickedCell)) {
+            await buildTower(selectedWorker.player, selectedWorker.index, x, y);
+            setSelectedWorker(null);
+          } else {
+              await axios.post('/api/game/pass'); // user clicked irrelevant cell
+            }
+            break;
+          }
       }
       
       // Refresh the game state after any action
       await refreshGameState();
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.data) {
-        const friendlyMessage = getFriendlyErrorMessage(error.response.data);
-        toast.error(friendlyMessage);
+        const data = error.response.data;
+    
+        let message: string = '';
+    
+        if (typeof data === 'string') {
+          message = data;
+        } else if (typeof data === 'object' && 'message' in data) {
+          message = (data as any).message;
+        } else {
+          message = JSON.stringify(data);
+        }
+    
+        console.log("🚨 Backend error message:", message); 
+        const friendly = getFriendlyErrorMessage(message);
+        toast.error(friendly);
       } else if (error instanceof Error) {
         toast.error(error.message);
       } else {
@@ -162,14 +225,20 @@ const App: React.FC = () => {
   // Start a new game
   const handleNewGame = () => {
     setIsGameStarted(false);
+    setPendingPlayers(null);
     setSelectedWorker(null);
     setGameState(null);
     setErrorMessage('');
   };
 
   if (!isGameStarted) {
-    return <StartScreen onStartGame={handleStartGame} />;
+    if (!pendingPlayers) {
+      return <StartScreen onContinue={(a, b) => setPendingPlayers({ playerA: a, playerB: b })} />;
+    } else {
+      return <GodSelectionScreen playerA={pendingPlayers.playerA} playerB={pendingPlayers.playerB} onStartGame={handleStartGame} />;
+    }
   }
+
 
   if (!gameState) {
     return (
@@ -318,6 +387,14 @@ const App: React.FC = () => {
               </motion.div>
             )}
           </AnimatePresence>
+          {gameState.phase === 'optionalAction' && (
+            <button
+              onClick={() => axios.post('/api/game/pass')}
+              className="mt-6 bg-yellow-500 text-white px-6 py-2 rounded-lg shadow-md hover:bg-yellow-600"
+            >
+              Skip Second Build
+            </button>
+          )}
         </motion.div>
         </div>
     </div>

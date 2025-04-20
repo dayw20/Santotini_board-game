@@ -9,6 +9,8 @@ public class Cell {
     private int y;
     private int level;
     private Occupancy occupancy;
+    private String highlightType = "NONE"; 
+
 
     /**
      * Creates a new {@link Cell} instance.
@@ -81,6 +83,14 @@ public class Cell {
      */
     public void setOccupancy(Occupancy occupancy) {
         this.occupancy = occupancy;
+    }
+
+    public String getHighlightType() {
+        return highlightType;
+    }
+    
+    public void setHighlightType(String highlightType) {
+        this.highlightType = highlightType;
     }
 
 }

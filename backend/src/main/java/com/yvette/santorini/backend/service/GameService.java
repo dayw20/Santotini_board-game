@@ -3,6 +3,8 @@ package com.yvette.santorini.backend.service;
 import org.springframework.stereotype.Service;
 import com.yvette.santorini.backend.model.*;
 import com.yvette.santorini.backend.dto.*;
+import com.yvette.santorini.backend.godpowers.GodFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +15,13 @@ import java.util.List;
 public class GameService {
     
     private Game game;
+    private Worker findWorkerAt(Cell cell) {
+        for (Worker w : game.getBoard().getAllWorkers()) {
+            if (w.getPosition() == cell) return w;
+        }
+        return null;
+    }
+    
     
     public GameService() {
         this.game = new Game();
@@ -21,9 +30,11 @@ public class GameService {
     /**
      * Start a new game with the given players.
      */
-    public void startGame(String playerAName, String playerBName) {
+    public void startGame(String playerAName, String playerBName, String godA, String godB) {
         Player playerA = new Player(playerAName);
         Player playerB = new Player(playerBName);
+        playerA.setGod(GodFactory.create(godA));
+        playerB.setGod(GodFactory.create(godB));
         
         game = new Game();
         game.startGame(playerA, playerB);
@@ -138,7 +149,68 @@ public class GameService {
      * @return true if move was successful, false otherwise
      * @throws IllegalArgumentException if invalid coordinates or player
      */
-    public boolean moveWorker(MoveRequest request) {
+    public void moveWorker(MoveRequest request) {
+        Player player = findPlayerByName(request.getPlayerName());
+        if (player == null || player != game.getCurrPlayer()) {
+            throw new IllegalArgumentException("Not your turn or player not found");
+        }
+    
+        if (request.getWorkerIndex() < 0 || request.getWorkerIndex() >= player.getWorkers().size()) {
+            throw new IllegalArgumentException("Invalid worker index");
+        }
+    
+        Worker worker = player.getWorkers().get(request.getWorkerIndex());
+        Cell targetCell = game.getBoard().getCell(request.getTargetX(), request.getTargetY());
+    
+   
+        if (!player.getGod().getMoveStrategy().isValidMove(game, player, worker, targetCell)) {
+            throw new IllegalArgumentException("Invalid move");
+        }
+    
+        Cell fromCell = worker.getPosition();
+        if (targetCell.isOccupied()) {
+            Worker opponent = findWorkerAt(targetCell);
+            if (opponent != null && opponent.getOwner() != player) {
+                int dx = targetCell.getX() - fromCell.getX();
+                int dy = targetCell.getY() - fromCell.getY();
+                int pushX = targetCell.getX() + dx;
+                int pushY = targetCell.getY() + dy;
+        
+                if (!game.getBoard().isValidPosition(pushX, pushY)) {
+                    throw new IllegalArgumentException("Invalid move: push off board");
+                }
+        
+                Cell pushCell = game.getBoard().getCell(pushX, pushY);
+                if (pushCell.isOccupied() || pushCell.getOccupancy() == Occupancy.DOME) {
+                    throw new IllegalArgumentException("Invalid move: cannot push into occupied cell");
+                }
+        
+                //  Push opponent first
+                opponent.moveTo(pushCell);
+            }
+        }
+        
+        // Now move current worker
+        worker.moveTo(targetCell);
+        player.getGod().getMoveStrategy().afterMove(game, player, worker, fromCell, targetCell);
+    
+        if (player.getGod().getWinConditionStrategy().checkWin(game, player, worker, fromCell, targetCell)) {
+            game.setPhase("end");
+            game.setWinner(player);
+        } else {
+            game.setPhase("building");
+        }
+    }
+    
+    
+    /**
+     * Build with a worker on the board.
+     * 
+     * @param request The request containing build information
+     * @return true if build was successful, false otherwise
+     * @throws IllegalArgumentException if invalid coordinates or player
+     */
+    public boolean buildTower(BuildRequest request) {
         Player player = findPlayerByName(request.getPlayerName());
         if (player == null || player != game.getCurrPlayer()) {
             throw new IllegalArgumentException("Not your turn or player not found");
@@ -151,45 +223,15 @@ public class GameService {
         Worker worker = player.getWorkers().get(request.getWorkerIndex());
         Cell targetCell = game.getBoard().getCell(request.getTargetX(), request.getTargetY());
         
-        if (game.executeMove(player, worker, targetCell)) {
-            game.setPhase("building");
-            return true;
+        if (!player.getGod().getBuildStrategy().isValidBuild(game, player, worker, targetCell)) {
+            return false;
         }
-        
-        return false;
-    }
-    
-    /**
-     * Build with a worker on the board.
-     * 
-     * @param request The request containing build information
-     * @return true if build was successful, false otherwise
-     * @throws IllegalArgumentException if invalid coordinates or player
-     */
-    public boolean buildTower(BuildRequest request) {
-    Player player = findPlayerByName(request.getPlayerName());
-    if (player == null || player != game.getCurrPlayer()) {
-        throw new IllegalArgumentException("Not your turn or player not found");
-    }
-    
-    if (request.getWorkerIndex() < 0 || request.getWorkerIndex() >= player.getWorkers().size()) {
-        throw new IllegalArgumentException("Invalid worker index");
-    }
-    
-    Worker worker = player.getWorkers().get(request.getWorkerIndex());
-    Cell targetCell = game.getBoard().getCell(request.getTargetX(), request.getTargetY());
-    
-    if (game.executeBuild(player, worker, targetCell)) {
-        // Move to next player's turn
-        if (!game.isGameOver()) {
-            game.nextTurn();
-            game.setPhase("selectingWorker");
-        }
+
+        worker.buildOn(targetCell);
+        player.getGod().getBuildStrategy().afterBuild(game, player, worker, targetCell);
+
         return true;
     }
-    
-    return false;
-}
     
     /**
      * Convert the current board state to a list of CellState objects.
@@ -206,6 +248,7 @@ public class GameService {
                 cellState.setX(x);
                 cellState.setY(y);
                 cellState.setLevel(cell.getLevel());
+                cellState.setHighlightType(cell.getHighlightType());  
                 
                 // Set occupancy
                 switch (cell.getOccupancy()) {
@@ -250,5 +293,14 @@ public class GameService {
     // Add a getter for the game object if needed
     public Game getGame() {
         return game;
+    }
+
+    /**
+     * Handle skip/pass on second build phase (e.g., Demeter).
+     */
+    public void passSecondBuild() {
+        game.getCurrPlayer().getGod().getBuildStrategy().resetTurnState();
+        game.nextTurn();
+        game.setPhase("selectingWorker");
     }
 }

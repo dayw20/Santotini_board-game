@@ -74,6 +74,10 @@ const GameCell: React.FC<GameCellProps> = ({
 
     if (isValidMove) return 'bg-green-200 shadow-md shadow-green-400';
     if (isValidBuild) return 'bg-blue-200 shadow-md shadow-blue-400';
+    if (cell.highlightType === "FIRST_BUILD") {
+      return 'bg-yellow-300 shadow-yellow-500';
+    }
+    
     
     switch (cell.level) {
       case 1: return 'bg-gray-200';

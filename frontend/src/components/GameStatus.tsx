@@ -20,6 +20,9 @@ const GameStatus: React.FC<GameStatusProps> = ({ gameState }) => {
         return `${gameState.currentPlayer}'s turn to move the selected worker 🏃‍♂️`;
       case 'building':
         return `${gameState.currentPlayer}'s turn to build with the selected worker 🏠`;
+      case 'optionalAction':
+        return `${gameState.currentPlayer}'s turn — optional second build 🌾`;
+        
       default:
         return 'Game in progress...';
     }

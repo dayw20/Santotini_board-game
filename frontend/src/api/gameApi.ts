@@ -22,15 +22,21 @@ export const fetchGameState = async (): Promise<GameState> => {
 };
 
 // Start a new game with player names
-export const startGame = async (playerAName: string, playerBName: string): Promise<void> => {
+export const startGame = async (playerA: string, playerB: string, godA: string, godB: string): Promise<void> => {
   try {
-    const request: StartGameRequest = { playerAName, playerBName };
+    const request: StartGameRequest = {
+      playerAName: playerA,
+      playerBName: playerB,
+      playerAGod: godA,
+      playerBGod: godB
+    };
     await axios.post(`${API_URL}/game/start`, request);
   } catch (error) {
     console.error('Error starting game:', error);
     throw error;
   }
 };
+
 
 // Place a worker on the board
 export const placeWorker = async (

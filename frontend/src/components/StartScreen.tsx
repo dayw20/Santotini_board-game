@@ -3,10 +3,10 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 
 interface StartScreenProps {
-  onStartGame: (playerA: string, playerB: string) => void;
+  onContinue: (playerA: string, playerB: string) => void;
 }
 
-const StartScreen: React.FC<StartScreenProps> = ({ onStartGame }) => {
+const StartScreen: React.FC<StartScreenProps> = ({ onContinue }) => {
   const [playerA, setPlayerA] = useState('');
   const [playerB, setPlayerB] = useState('');
   const [showIntro, setShowIntro] = useState(true);
@@ -14,7 +14,7 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStartGame }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (playerA.trim() && playerB.trim()) {
-      onStartGame(playerA.trim(), playerB.trim());
+      onContinue(playerA.trim(), playerB.trim());
     }
   };
 

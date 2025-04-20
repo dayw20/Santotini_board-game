@@ -19,6 +19,12 @@ public class Game {
         this.winner = null;
     }
 
+    public void setWinner(Player winner) {
+        this.winner = winner;
+        this.gameOver = true;
+    }
+    
+
     public void startGame(Player playerA, Player playerB) {
         players.clear();
         players.add(playerA);
@@ -198,6 +204,11 @@ public class Game {
      */
     public void nextTurn() {
         currPlayer = (currPlayer == players.get(0)) ? players.get(1) : players.get(0);
+        for (Player p : players) {
+            if (p.getGod() != null && p.getGod().getBuildStrategy() != null) {
+                p.getGod().getBuildStrategy().resetTurnState();
+            }
+        }
     }
 
     /**

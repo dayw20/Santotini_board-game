@@ -7,6 +7,9 @@ public class CellState {
     private String occupancy; // "EMPTY", "WORKER", "DOME"
     private String player; // if worker, which player
     private Integer workerIndex; // if worker, worker 0 or 1
+    private String highlightType = "NONE";
+
+
 
     // Getters and Setters
     public int getX() { return x; }
@@ -26,4 +29,13 @@ public class CellState {
 
     public Integer getWorkerIndex() { return workerIndex; }
     public void setWorkerIndex(Integer workerIndex) { this.workerIndex = workerIndex; }
+
+    public String getHighlightType() {
+        return highlightType;
+    }
+    
+    public void setHighlightType(String highlightType) {
+        this.highlightType = highlightType;
+    }
+    
 }

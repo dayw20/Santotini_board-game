@@ -6,12 +6,20 @@ export interface CellState {
     occupancy: string; // "EMPTY", "WORKER", "DOME"
     player?: string;
     workerIndex?: number;
+    highlightType?: "FIRST_BUILD" | "NONE";
   }
-  
+  export type GamePhase = 
+  | "placingWorker" 
+  | "selectingWorker" 
+  | "moving" 
+  | "building" 
+  | "optionalAction" 
+  | "end";
+
   export interface GameState {
     currentPlayer: string;
     winner: string | null;
-    phase: string;
+    phase: GamePhase;
     gameOver: boolean;
     board: CellState[];
     players: string[]; 
@@ -41,6 +49,8 @@ export interface CellState {
   export interface StartGameRequest {
     playerAName: string;
     playerBName: string;
+    playerAGod: string;
+    playerBGod: string;
   }
   
   export interface WorkerSelection {
@@ -52,3 +62,5 @@ export interface CellState {
   playerName: string;
   workerIndex: number;
 }
+
+
