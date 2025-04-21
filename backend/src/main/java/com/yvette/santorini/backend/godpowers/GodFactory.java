@@ -32,6 +32,14 @@ public class GodFactory {
                     new HephaestusBuildStrategy(),
                     new DefaultWinConditionStrategy()
                 );
+            
+            case "pan":
+                return new God(
+                    new DefaultMoveStrategy(),
+                    new DefaultBuildStrategy(),
+                    new PanWinConditionStrategy()
+                );
+            
 
             default:
                 return new God(
