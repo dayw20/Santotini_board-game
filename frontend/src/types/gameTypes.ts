@@ -23,6 +23,7 @@ export interface CellState {
     gameOver: boolean;
     board: CellState[];
     players: string[]; 
+    playerGods?: Record<string, string>;
   }
   
   export interface PlaceWorkerRequest {
@@ -44,6 +45,7 @@ export interface CellState {
     workerIndex: number;
     targetX: number;
     targetY: number;
+    buildDome?: boolean;
   }
   
   export interface StartGameRequest {

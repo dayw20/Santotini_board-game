@@ -12,8 +12,11 @@ const availableGods = [
   { name: 'demeter', label: 'Demeter 🌾', description: 'Build twice, not on the same cell.' },
   { name: 'minotaur', label: 'Minotaur 🐂', description: 'Push opponent worker if cell behind is free.' },
   { name: 'hephaestus', label: 'Hephaestus 🔨', description: 'Optionally build twice on the same space (block only).' },
-  { name: 'pan', label: 'Pan 🐐', description: ' Also win if  Worker moves down two or more levels.' },
+  { name: 'pan', label: 'Pan 🐐', description: 'Also win if Worker moves down two or more levels.' },
+  { name: 'atlas', label: 'Atlas 🗿', description: 'May build a dome at any level.' },
+  { name: 'apollo', label: 'Apollo 🏛️', description: 'Swap with opponent worker when moving.' }, // ✅ Add this
 ];
+
 
 
 const GodSelectionScreen: React.FC<GodSelectionScreenProps> = ({ playerA, playerB, onStartGame }) => {

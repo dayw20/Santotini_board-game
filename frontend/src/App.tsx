@@ -18,7 +18,7 @@ import { GameState, WorkerSelection, CellState } from './types/gameTypes';
 const getFriendlyErrorMessage = (serverMessage: string): string => {
   const errorMap: { [key: string]: string } = {
     "Invalid move": "Invalid move! You can only move to an adjacent empty cell.",
-    "Invalid build action": "Invalid build! You can only build next to your worker.",
+    // "Invalid build action": "Invalid build! You can only build next to your worker.",
     "Cannot place worker on occupied cell": "That cell is already occupied.",
     "Player not found": "Player not found. Please restart the game.",
     "Not your turn or player not found": "It's not your turn!",
@@ -26,6 +26,13 @@ const getFriendlyErrorMessage = (serverMessage: string): string => {
     "Invalid worker index": "Invalid worker index. Please restart the game.",
     "Cannot select worker at this phase": "You cannot select a worker right now.",
   };
+  if (serverMessage.startsWith("Invalid build: target is not adjacent")) {
+    return "You can only build next to your worker.";
+  }
+  if (serverMessage.startsWith("Invalid build: target is occupied or domed")) {
+    return "You can't build on domes or occupied spaces.";
+  }
+  
   if (serverMessage.startsWith("Invalid move: target is not adjacent")) {
     return "You can only move to an adjacent cell.";
   }
@@ -55,6 +62,7 @@ const App: React.FC = () => {
   const [isGameStarted, setIsGameStarted] = useState<boolean>(false);
   const [showRules, setShowRules] = useState<boolean>(false);
   const [pendingPlayers, setPendingPlayers] = useState<{ playerA: string; playerB: string } | null>(null);
+  const [buildDomeMode, setBuildDomeMode] = useState(false);
 
   const isValidBuildLocation = (cell: CellState): boolean => {
     if (!selectedWorker || !gameState) return false;
@@ -119,6 +127,10 @@ const App: React.FC = () => {
     }
   };
 
+  const handleBuildDomeToggle = () => {
+    setBuildDomeMode(!buildDomeMode);
+  };
+
   // Handle clicking on a cell
   const handleCellClick = async (x: number, y: number) => {
     if (!gameState) return;
@@ -156,9 +168,7 @@ const App: React.FC = () => {
               });
           
               await selectWorker(gameState.currentPlayer, clickedCell.workerIndex);
-            } else {
-              toast.error('Please select one of your own workers.');
-            }
+            } 
             break;
           
         case 'moving':
@@ -170,22 +180,48 @@ const App: React.FC = () => {
           }
           break;
           
-        case 'building':
-          if (selectedWorker) {
-            console.log("Building with worker:", selectedWorker.player, selectedWorker.index, "at", x, y);
-            await buildTower(selectedWorker.player, selectedWorker.index, x, y);
-            // setSelectedWorker(null);
-          } else {
-            toast.error('Please select a worker first');
+          case 'building': {
+            if (selectedWorker) {
+              console.log("Building with worker:", selectedWorker.player, selectedWorker.index, "at", x, y);
+              try {
+                await axios.post('/api/game/build', {
+                  playerName: selectedWorker.player,
+                  workerIndex: selectedWorker.index,
+                  targetX: x,
+                  targetY: y,
+                  buildDome: buildDomeMode,
+                });
+                setBuildDomeMode(false);
+              } catch (error) {
+                if (axios.isAxiosError(error) && error.response?.data) {
+                  const message = typeof error.response.data === 'string'
+                    ? error.response.data
+                    : JSON.stringify(error.response.data);
+                  console.log("🚨 Build error:", message);
+                  toast.error(getFriendlyErrorMessage(message));
+                } else {
+                  toast.error("An unexpected error occurred during build.");
+                }
+              }
+            } else {
+              toast.error('Please select a worker first');
+            }
+            break;
           }
-          break;
         
         case 'optionalAction': {
           const clickedCell = gameState.board.find(c => c.x === x && c.y === y);
             
           // Reuse isValidBuildLocation to check if user is trying to build
           if (selectedWorker && clickedCell && isValidBuildLocation(clickedCell)) {
-            await buildTower(selectedWorker.player, selectedWorker.index, x, y);
+            await axios.post('/api/game/build', {
+              playerName: selectedWorker.player,
+              workerIndex: selectedWorker.index,
+              targetX: x,
+              targetY: y,
+              buildDome: buildDomeMode,
+            });
+            setBuildDomeMode(false);
             setSelectedWorker(null);
           } else {
               await axios.post('/api/game/pass'); // user clicked irrelevant cell
@@ -209,7 +245,6 @@ const App: React.FC = () => {
         } else {
           message = JSON.stringify(data);
         }
-    
         console.log("🚨 Backend error message:", message); 
         const friendly = getFriendlyErrorMessage(message);
         toast.error(friendly);
@@ -387,6 +422,17 @@ const App: React.FC = () => {
               </motion.div>
             )}
           </AnimatePresence>
+          {gameState.phase === 'building' && selectedWorker && (gameState.playerGods?.[gameState.currentPlayer]?.toLowerCase() === 'atlas') && (
+            <button
+              onClick={handleBuildDomeToggle}
+              className={`mt-4 px-4 py-2 rounded-lg font-medium shadow-md transition ${
+                buildDomeMode ? 'bg-red-500 text-white' : 'bg-white text-gray-800 border border-gray-300'
+              }`}
+            >
+              {buildDomeMode ? 'Dome Mode: ON 🏛️' : 'Enable Dome Build 🏛️'}
+            </button>
+          )}
+
           {gameState.phase === 'optionalAction' && (
             <button
               onClick={() => axios.post('/api/game/pass')}

@@ -36,6 +36,35 @@ public class MinotaurMoveStrategy extends DefaultMoveStrategy {
         return worker.canClimb(targetCell.getLevel());
     }
 
+    @Override
+    public void performMove(Game game, Player player, Worker worker, Cell from, Cell to) {
+        Worker opponent = getWorkerAt(game, to);
+        if (opponent != null && opponent.getOwner() != player) {
+            int dx = to.getX() - from.getX();
+            int dy = to.getY() - from.getY();
+            int pushX = to.getX() + dx;
+            int pushY = to.getY() + dy;
+            Cell pushCell = game.getBoard().getCell(pushX, pushY);
+            opponent.moveTo(pushCell);
+        }
+        worker.moveTo(to); // Move player into the old opponent’s position
+    }
+
+    @Override
+    public void afterMove(Game game, Player player, Worker worker, Cell from, Cell to) {
+        Worker opponent = getWorkerAt(game, to);
+        if (opponent != null && opponent.getOwner() != player) {
+            int dx = to.getX() - from.getX();
+            int dy = to.getY() - from.getY();
+            int pushX = to.getX() + dx;
+            int pushY = to.getY() + dy;
+            Cell pushCell = game.getBoard().getCell(pushX, pushY);
+
+            opponent.moveTo(pushCell);  
+        }
+    }
+
+
 
     private Worker getWorkerAt(Game game, Cell cell) {
         for (Worker w : game.getBoard().getAllWorkers()) {

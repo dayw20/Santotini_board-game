@@ -60,12 +60,8 @@ public class GameController {
     @PostMapping("/select-worker")
     public ResponseEntity<?> selectWorker(@RequestBody WorkerSelectionRequest request) {
         try {
-            boolean success = gameService.selectWorker(request);
-            if (success) {
-                return ResponseEntity.ok().build();
-            } else {
-                return ResponseEntity.badRequest().body("Invalid worker selection");
-            }
+            gameService.selectWorker(request);
+            return ResponseEntity.ok().build();
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -77,7 +73,7 @@ public class GameController {
     @PostMapping("/move")
     public ResponseEntity<?> moveWorker(@RequestBody MoveRequest request) {
         try {
-            gameService.moveWorker(request); // will throw if invalid
+            gameService.moveWorker(request);
             return ResponseEntity.ok().build();
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage()); // shows "Invalid move: [reason]"
@@ -91,12 +87,8 @@ public class GameController {
     @PostMapping("/build")
     public ResponseEntity<?> buildTower(@RequestBody BuildRequest request) {
         try {
-            boolean success = gameService.buildTower(request);
-            if (success) {
-                return ResponseEntity.ok().build();
-            } else {
-                return ResponseEntity.badRequest().body("Invalid build action");
-            }
+            gameService.buildTower(request);
+            return ResponseEntity.ok().build();
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

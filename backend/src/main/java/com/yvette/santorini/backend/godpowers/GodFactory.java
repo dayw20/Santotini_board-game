@@ -39,8 +39,22 @@ public class GodFactory {
                     new DefaultBuildStrategy(),
                     new PanWinConditionStrategy()
                 );
-            
 
+            case "atlas":
+                return new God(
+                    new DefaultMoveStrategy(),
+                    new AtlasBuildStrategy(),
+                    new DefaultWinConditionStrategy()
+                );
+            
+            case "apollo":
+                return new God(
+                    new ApolloMoveStrategy(),
+                    new DefaultBuildStrategy(),
+                    new DefaultWinConditionStrategy()
+                );
+            
+            
             default:
                 return new God(
                     new DefaultMoveStrategy(),

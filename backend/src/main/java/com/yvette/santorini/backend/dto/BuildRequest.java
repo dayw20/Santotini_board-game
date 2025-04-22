@@ -5,6 +5,8 @@ public class BuildRequest {
     private int workerIndex;
     private int targetX;
     private int targetY;
+    private boolean buildDome;
+
 
     // Getters and Setters
     public String getPlayerName() { return playerName; }
@@ -18,5 +20,8 @@ public class BuildRequest {
 
     public int getTargetY() { return targetY; }
     public void setTargetY(int targetY) { this.targetY = targetY; }
+
+    public boolean isBuildDome() { return buildDome; }
+    public void setBuildDome(boolean buildDome) { this.buildDome = buildDome; }
 }
 

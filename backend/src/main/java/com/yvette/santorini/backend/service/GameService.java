@@ -4,9 +4,13 @@ import org.springframework.stereotype.Service;
 import com.yvette.santorini.backend.model.*;
 import com.yvette.santorini.backend.dto.*;
 import com.yvette.santorini.backend.godpowers.GodFactory;
+import com.yvette.santorini.backend.godpowers.strategy.BuildStrategy;
+import com.yvette.santorini.backend.godpowers.strategy.MoveStrategy;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Service for managing the Santorini game logic.
@@ -64,6 +68,19 @@ public class GameService {
             playerNames.add(player.getName());
         }
         response.setPlayers(playerNames);
+
+        Map<String, String> playerGods = new HashMap<>();
+        for (Player player : game.getPlayers()) {
+            String godName = "none";
+            if (player.getGod() != null && player.getGod().getBuildStrategy() != null) {
+                godName = player.getGod().getBuildStrategy().getClass()
+                    .getSimpleName()
+                    .replace("BuildStrategy", "")
+                    .toLowerCase();
+            }
+            playerGods.put(player.getName(), godName);
+        }
+        response.setPlayerGods(playerGods);
         
         return response;
     }
@@ -168,32 +185,11 @@ public class GameService {
         }
     
         Cell fromCell = worker.getPosition();
-        if (targetCell.isOccupied()) {
-            Worker opponent = findWorkerAt(targetCell);
-            if (opponent != null && opponent.getOwner() != player) {
-                int dx = targetCell.getX() - fromCell.getX();
-                int dy = targetCell.getY() - fromCell.getY();
-                int pushX = targetCell.getX() + dx;
-                int pushY = targetCell.getY() + dy;
-        
-                if (!game.getBoard().isValidPosition(pushX, pushY)) {
-                    throw new IllegalArgumentException("Invalid move: push off board");
-                }
-        
-                Cell pushCell = game.getBoard().getCell(pushX, pushY);
-                if (pushCell.isOccupied() || pushCell.getOccupancy() == Occupancy.DOME) {
-                    throw new IllegalArgumentException("Invalid move: cannot push into occupied cell");
-                }
-        
-                //  Push opponent first
-                opponent.moveTo(pushCell);
-            }
-        }
-        
-        // Now move current worker
-        worker.moveTo(targetCell);
-        player.getGod().getMoveStrategy().afterMove(game, player, worker, fromCell, targetCell);
-    
+        MoveStrategy strategy = player.getGod().getMoveStrategy();
+        strategy.performMove(game, player, worker, fromCell, targetCell);
+
+        strategy.afterMove(game, player, worker, fromCell, targetCell);
+
         if (player.getGod().getWinConditionStrategy().checkWin(game, player, worker, fromCell, targetCell)) {
             game.setPhase("end");
             game.setWinner(player);
@@ -223,12 +219,12 @@ public class GameService {
         Worker worker = player.getWorkers().get(request.getWorkerIndex());
         Cell targetCell = game.getBoard().getCell(request.getTargetX(), request.getTargetY());
         
-        if (!player.getGod().getBuildStrategy().isValidBuild(game, player, worker, targetCell)) {
-            return false;
+        BuildStrategy strategy = player.getGod().getBuildStrategy();
+        if (!strategy.isValidBuild(game, player, worker, targetCell)) {
+            throw new IllegalArgumentException("Invalid build");
         }
-
-        worker.buildOn(targetCell);
-        player.getGod().getBuildStrategy().afterBuild(game, player, worker, targetCell);
+        strategy.performBuild(game, player, worker, targetCell, request.isBuildDome());
+        strategy.afterBuild(game, player, worker, targetCell);
 
         return true;
     }
@@ -259,8 +255,9 @@ public class GameService {
                         cellState.setOccupancy("WORKER");
                         // Find which player and worker is on this cell
                         for (Player player : game.getPlayers()) {
-                            for (int i = 0; i < player.getWorkers().size(); i++) {
-                                Worker worker = player.getWorkers().get(i);
+                            List<Worker> workers = player.getWorkers();
+                            for (int i = 0; i < workers.size(); i++) {
+                                Worker worker = workers.get(i);
                                 if (worker.getPosition() == cell) {
                                     cellState.setPlayer(player.getName());
                                     cellState.setWorkerIndex(i);
@@ -268,6 +265,7 @@ public class GameService {
                                 }
                             }
                         }
+                        
                         break;
                     case DOME:
                         cellState.setOccupancy("DOME");

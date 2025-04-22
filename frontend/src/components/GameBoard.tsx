@@ -2,7 +2,7 @@
 // File: src/components/GameBoard.tsx
 import React from 'react';
 import GameCell from './GameCell';
-import { CellState, GameState, WorkerSelection, GamePhase } from '../types/gameTypes';
+import { CellState, GameState, WorkerSelection } from '../types/gameTypes';
 
 
 interface GameBoardProps {
@@ -27,37 +27,35 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameState, selectedWorker, onCell
 
   // Determine if a cell is valid for moving or building
   const isValidMoveLocation = (cell: CellState): boolean => {
-    if (!selectedWorker || gameState.phase !== 'moving') return false;
-    if (cell.occupancy === 'DOME') return false;
-    
-    // Find the currently selected worker's cell
-    const workerCell = gameState.board.find(c => 
-      c.occupancy === 'WORKER' && 
-      c.player === selectedWorker.player && 
-      c.workerIndex === selectedWorker.index
-    );
-    
-    if (!workerCell) return false;
-    
-    // Check if adjacent
-    const dx = Math.abs(cell.x - workerCell.x);
-    const dy = Math.abs(cell.y - workerCell.y);
-    const isOptionalPhase = (gameState.phase as GamePhase) === 'optionalAction';
+  if (!selectedWorker || gameState.phase !== 'moving') return false;
+  if (cell.occupancy === 'DOME') return false;
 
+  const god = gameState.playerGods?.[selectedWorker.player]?.toLowerCase();
+  const isApolloOrMinotaur = god === 'apollo' || god === 'minotaur';
 
-  // Hephaestus may allow building on the same cell, so don't block it here.
-  // Let the backend decide what's allowed in optionalAction.
+  if (cell.occupancy === 'WORKER' && cell.player === selectedWorker.player) return false;
+  if (
+    cell.occupancy === 'WORKER' &&
+    cell.player !== selectedWorker.player &&
+    !isApolloOrMinotaur
+  ) {
+    return false;
+  }
+
+  const workerCell = gameState.board.find(c =>
+    c.occupancy === 'WORKER' &&
+    c.player === selectedWorker.player &&
+    c.workerIndex === selectedWorker.index
+  );
+  if (!workerCell) return false;
+
+  const dx = Math.abs(cell.x - workerCell.x);
+  const dy = Math.abs(cell.y - workerCell.y);
   const isAdjacent = dx <= 1 && dy <= 1;
 
-  // For normal building phase, disallow building on the worker's own cell
-  if (!isOptionalPhase && dx === 0 && dy === 0) return false;
+  return isAdjacent;
+};
 
-    
-    // Check level difference
-    const canClimb = cell.level - workerCell.level <= 1;
-    
-    return isAdjacent && canClimb;
-  };
   
   const isValidBuildLocation = (cell: CellState): boolean => {
     if (!selectedWorker || (gameState.phase !== 'building' && gameState.phase !== 'optionalAction')) return false;
