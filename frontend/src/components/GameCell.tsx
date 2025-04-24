@@ -33,9 +33,9 @@ const GameCell: React.FC<GameCellProps> = ({
       let workerEmoji;
       
       if (cell.player === playerAName) {
-        workerEmoji = playerAWorkers[cell.workerIndex || 0];
+        workerEmoji = playerAWorkers[cell.workerIndex ?? 0];
       } else if (cell.player === playerBName) {
-        workerEmoji = playerBWorkers[cell.workerIndex || 0];
+        workerEmoji = playerBWorkers[cell.workerIndex ?? 0];
       } else {
         workerEmoji = '❓'; 
       }
