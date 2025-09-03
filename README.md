@@ -2,10 +2,18 @@
 
 A modern, full-stack implementation of the classic **Santorini** board game, featuring an interactive web interface and sophisticated game logic with Greek god powers.
 
+## 🎮 Demo
+
+> **📸 运行截图/GIF 将在这里显示**
+> 
+> *游戏运行时的精彩瞬间展示，包括游戏界面、操作演示等*
+
 ![Santorini Game](https://img.shields.io/badge/Game-Santorini-blue)
 ![Java](https://img.shields.io/badge/Backend-Java%2017+-orange)
 ![React](https://img.shields.io/badge/Frontend-React%2019%2B-blue)
 ![Spring Boot](https://img.shields.io/badge/Framework-Spring%20Boot-green)
+![License](https://img.shields.io/badge/License-MIT-green)
+![CI](https://img.shields.io/badge/CI-GitHub%20Actions-blue)
 
 ## 🎮 Game Overview
 
@@ -181,5 +189,17 @@ java -jar target/backend-0.0.1-SNAPSHOT.jar
 cd frontend
 npm run build
 # Serve the dist/ folder with your preferred web server
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📞 Support
+
+If you have any questions or need help, please open an issue on GitHub.
 ```
 
