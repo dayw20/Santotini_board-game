@@ -1,12 +1,6 @@
 # 🏛️ Santorini Board Game
 
-A modern, full-stack implementation of the classic **Santorini** board game, featuring an interactive web interface and sophisticated game logic with Greek god powers.
-
-## 🎮 Demo
-
-> **📸 运行截图/GIF 将在这里显示**
-> 
-> *游戏运行时的精彩瞬间展示，包括游戏界面、操作演示等*
+A full-stack implementation of the classic **Santorini** board game, featuring an interactive web interface and sophisticated game logic with Greek god powers.
 
 ![Santorini Game](https://img.shields.io/badge/Game-Santorini-blue)
 ![Java](https://img.shields.io/badge/Backend-Java%2017+-orange)
